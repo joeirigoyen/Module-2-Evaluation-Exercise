@@ -195,7 +195,7 @@ def gradient_descent(x_data, y_data, rate, epochs, first_layer_neurons, second_l
         dw1, db1, dw2, db2 = backward_propagation(x_data, y_data, z1, a1, a2, w2, samples)
         w1, b1, w2, b2 = update_params(w1, b1, w2, b2, dw1, db1, dw2, db2, rate, first_layer_neurons, second_layer_neurons)
         
-        if (epoch + 1) % 10 == 0 or epoch + 1 == epochs:
+        if (epoch + 1) % 1000 == 0 or epoch + 1 == epochs:
             predicts = get_predictions(a2)
             print(f"--- Epoch # {epoch} ---")
             print(f"Accuracy: {get_accuracy(predicts, y_data):.3%}")
@@ -235,6 +235,7 @@ def show_predictions(x_data, y_data, w1, b1, w2, b2, index):
     """
     x_sample = x_data[:, index, None]
     predicts = make_predictions(x_sample, w1, b1, w2, b2)
+    
     label = y_data[index]
     print(f"Prediction: {predicts}")
     print(f"Label: {label}")
@@ -266,15 +267,15 @@ def process_data(data):
 # Run functions
 if __name__ == '__main__':
     # Import dataframe
-    df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
+    df_gen = DataframeGenerator("Module-2-Evaluation-Exercise\\data\\breast-cancer-wisconsin.data")
     df = process_data(df_gen.train)
     # Split dataframe into separate arrays
     x = df.drop('diagnosis', axis=1).to_numpy().T
     y = df['diagnosis'].to_numpy()
 
     # Run the model
-    first_layer_neurons, second_layer_neurons = 2, 2
-    w1, b1, w2, b2 = gradient_descent(x, y, 0.1, 200, first_layer_neurons, second_layer_neurons)
+    first_layer_neurons, second_layer_neurons = 8, 2
+    w1, b1, w2, b2 = gradient_descent(x, y, 0.001, 10000, first_layer_neurons, second_layer_neurons)
 
     # Get and clean test data
     df_test = process_data(df_gen.test)
@@ -283,5 +284,5 @@ if __name__ == '__main__':
     test_y = df_test['diagnosis'].to_numpy()
 
     # Get predictions
-    for i in range(len(test_y)):
+    for i in range(0, len(test_y), 10):
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
