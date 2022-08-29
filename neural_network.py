@@ -1,17 +1,6 @@
 from df_generator import DataframeGenerator
 import numpy as np
 
-# Import dataframe
-df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
-df = df_gen.train
-# Clean dataframe from unwanted columns and assign them new column names
-df.drop(0, axis=1, inplace=True)
-# Move diagnosis column to be the first column
-diagnosis_col = df.pop(10)
-df.insert(0, 'diagnosis', diagnosis_col)
-# Apply function to diagnosis column for it to represent boolean values instead of 2s and 4s
-df['diagnosis'] = df['diagnosis'].apply(lambda x: 1 if x == 4 else 0)
-
 
 # Activation functions
 def relu(z):
@@ -251,30 +240,45 @@ def show_predictions(x_data, y_data, w1, b1, w2, b2, index):
     print(f"Label: {label}")
 
 
+def process_data(data):
+    """Fix data in order for it to be properly normalized and structured.
+
+    Args:
+        data (DataFrame): the original dataset
+
+    Returns:
+        data (DataFrame): the fixed dataset
+    """
+    # Clean dataframe from unwanted columns and assign them new column names
+    data = data.drop(0, axis=1)
+    # Move diagnosis column to be the first column
+    diagnosis_col = data.pop(10)
+    data.insert(0, 'diagnosis', diagnosis_col)
+    # Apply function to diagnosis column for it to represent boolean values instead of 2s and 4s
+    data['diagnosis'] = data['diagnosis'].apply(lambda x: 1 if x == 4 else 0)
+    # Normalize columns
+    for colname in data.drop('diagnosis', axis=1).columns:
+        col_max, col_min = data[colname].max(), data[colname].min()
+        data[colname] = (data[colname] - col_min)  / (col_max - col_min)
+    return data
+
+
 # Run functions
 if __name__ == '__main__':
-    # Normalize columns
-    for colname in df.drop('diagnosis', axis=1).columns:
-        col_max, col_min = df[colname].max(), df[colname].min()
-        df[colname] = (df[colname] - col_min)  / (col_max - col_min)
+    # Import dataframe
+    df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
+    df = process_data(df_gen.train)
     # Split dataframe into separate arrays
-    x = df.drop('diagnosis', axis=1).to_numpy()
+    x = df.drop('diagnosis', axis=1).to_numpy().T
     y = df['diagnosis'].to_numpy()
-    # Get sizes
-    samples, size = x.shape
-    # Reshape arrays to better represent the data
-    x = x.T
+
     # Run the model
-    first_layer_neurons, second_layer_neurons = 9, 2
+    first_layer_neurons, second_layer_neurons = 2, 2
     w1, b1, w2, b2 = gradient_descent(x, y, 0.1, 200, first_layer_neurons, second_layer_neurons)
 
     # Get and clean test data
-    df_test = df_gen.test
-    df_test.drop(0, axis=1, inplace=True)
-    diagnosis_col = df_test.pop(10)
-    df_test.insert(0, 'diagnosis', diagnosis_col)
-    df_test['diagnosis'] = df_test['diagnosis'].apply(lambda x: 1 if x == 4 else 0)
-    # Turn test data into arrays
+    df_test = process_data(df_gen.test)
+    # Split dataframe into separate arrays
     test_x = df_test.drop('diagnosis', axis=1).to_numpy().T
     test_y = df_test['diagnosis'].to_numpy()
 
