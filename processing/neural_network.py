@@ -272,7 +272,6 @@ if __name__ == '__main__':
     # Split dataframe into separate arrays
     x = df.drop('diagnosis', axis=1).to_numpy().T
     y = df['diagnosis'].to_numpy()
-
     # Run the model
     first_layer_neurons, second_layer_neurons = 8, 2
     w1, b1, w2, b2 = gradient_descent(x, y, 0.001, 10000, first_layer_neurons, second_layer_neurons)
