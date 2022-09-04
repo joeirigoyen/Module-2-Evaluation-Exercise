@@ -13,7 +13,6 @@ class DataframeGenerator:
         """
         # Generate dataframe from csv file
         self.df = pd.read_csv(csv_file, header=header, encoding=encoding, na_values=na_values)
-        print(f"File at {csv_file} imported successfully as dataframe of shape: {self.df.shape}")
         # Clean possible na values
         for column in self.df.columns:
             mean = self.df[column].mean()
@@ -23,9 +22,5 @@ class DataframeGenerator:
         self.train = self.df.sample(frac=0.8, random_state=25)
         self.test = self.df.drop(self.train.index)
         # Generate csv files with training and testing data
-        self.train.to_csv("Module-2-Evaluation-Exercise\\data\\data.csv")
-        print(f"Training file created successfully as train.csv")
-        print(f"# of training examples: {self.train.shape[0]}")
-        self.test.to_csv("Module-2-Evaluation-Exercise\\data\\test.csv")
-        print(f"Training file created successfully as test.csv")
-        print(f"# of testing examples: {self.test.shape[0]}")
+        self.train.to_csv("data\\train.csv", index=False)
+        self.test.to_csv("data\\test.csv", index=False)

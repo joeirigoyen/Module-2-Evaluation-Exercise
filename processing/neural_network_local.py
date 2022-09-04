@@ -1,7 +1,6 @@
 from df_generator import DataframeGenerator
 import numpy as np
 
-
 # Activation functions
 def relu(z):
     """
@@ -194,8 +193,8 @@ def gradient_descent(x_data, y_data, rate, epochs, first_layer_neurons, second_l
         z1, a1, z2, a2 = forward_propagation(x_data, w1, b1, w2, b2)
         dw1, db1, dw2, db2 = backward_propagation(x_data, y_data, z1, a1, a2, w2, samples)
         w1, b1, w2, b2 = update_params(w1, b1, w2, b2, dw1, db1, dw2, db2, rate, first_layer_neurons, second_layer_neurons)
-        
-        if (epoch + 1) % 1000 == 0 or epoch + 1 == epochs:
+
+        if epoch == 0 or (epoch) % 1000 == 0 or epoch + 1 == epochs:
             predicts = get_predictions(a2)
             print(f"--- Epoch # {epoch} ---")
             print(f"Accuracy: {get_accuracy(predicts, y_data):.3%}")
@@ -203,7 +202,7 @@ def gradient_descent(x_data, y_data, rate, epochs, first_layer_neurons, second_l
     return w1, b1, w2, b2
 
 
-def make_predictions(x_data, w1, b1, w2, b2):
+def make_prediction(x_data, w1, b1, w2, b2):
     """Get the output of the second neural layer with the current weights and biases.
 
     Args:
@@ -234,14 +233,14 @@ def show_predictions(x_data, y_data, w1, b1, w2, b2, index):
         index (int): the index of the x values to be evaluated
     """
     x_sample = x_data[:, index, None]
-    predicts = make_predictions(x_sample, w1, b1, w2, b2)
+    prediction = make_prediction(x_sample, w1, b1, w2, b2)
     
     label = y_data[index]
-    print(f"Prediction: {predicts}")
-    print(f"Label: {label}")
+    print(f"Prediction: {prediction}")
+    print(f"Actual value: {label}")
 
 
-def process_data(data):
+def process_df(data, minmax=True):
     """Fix data in order for it to be properly normalized and structured.
 
     Args:
@@ -250,6 +249,8 @@ def process_data(data):
     Returns:
         data (DataFrame): the fixed dataset
     """
+    # Generate dictionary with minimum and maximum values of each column
+    minmax_dict = {}
     # Clean dataframe from unwanted columns and assign them new column names
     data = data.drop(0, axis=1)
     # Move diagnosis column to be the first column
@@ -258,30 +259,78 @@ def process_data(data):
     # Apply function to diagnosis column for it to represent boolean values instead of 2s and 4s
     data['diagnosis'] = data['diagnosis'].apply(lambda x: 1 if x == 4 else 0)
     # Normalize columns
+    index = 0
     for colname in data.drop('diagnosis', axis=1).columns:
+        # Add column to dictionary
+        minmax_dict[index] = {}
+        # Add normalized values to dictionary
         col_max, col_min = data[colname].max(), data[colname].min()
+        minmax_dict[index]["max"] = col_max
+        minmax_dict[index]["min"] = col_min
+        # Replace data in dataframe
         data[colname] = (data[colname] - col_min)  / (col_max - col_min)
-    return data
+        # Add 1 to index
+        index += 1
+    if minmax:
+        return data, minmax_dict
+    else:
+        return data
+
+
+def normalized(values, minmax_dict):
+    new_values = []
+    for i in range(len(values)):
+        new_value = minmax_dict[i]["min"] if values[i] < minmax_dict[i]["min"] else minmax_dict[i]["max"] if values[i] > minmax_dict[i]["max"] else (values[i] - minmax_dict[i]["min"]) / (minmax_dict[i]["max"] - minmax_dict[i]["min"])
+        new_values.append(new_value)
+    return new_values
 
 
 # Run functions
 if __name__ == '__main__':
     # Import dataframe
-    df_gen = DataframeGenerator("Module-2-Evaluation-Exercise\\data\\breast-cancer-wisconsin.data")
-    df = process_data(df_gen.train)
+    print("\nImporting and processing data...")
+    df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
+    df, minmax_dict = process_df(df_gen.train)
     # Split dataframe into separate arrays
     x = df.drop('diagnosis', axis=1).to_numpy().T
     y = df['diagnosis'].to_numpy()
-    # Run the model
+    # Get weights by running the model
+    print("\nTraining neural network (using 10000 epochs and a learning rate of 0.001)...")
     first_layer_neurons, second_layer_neurons = 8, 2
     w1, b1, w2, b2 = gradient_descent(x, y, 0.001, 10000, first_layer_neurons, second_layer_neurons)
-
-    # Get and clean test data
-    df_test = process_data(df_gen.test)
-    # Split dataframe into separate arrays
-    test_x = df_test.drop('diagnosis', axis=1).to_numpy().T
-    test_y = df_test['diagnosis'].to_numpy()
-
-    # Get predictions
-    for i in range(0, len(test_y), 10):
+    # Get accuracy 
+    print("\nTesting model accuracy...")
+    test_df = process_df(df_gen.test, minmax=False)
+    test_x = test_df.drop('diagnosis', axis=1).to_numpy().T
+    test_y = test_df['diagnosis'].to_numpy()
+    for i in range(0, len(test_y), 5):
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
+
+    # Get sample from user
+    print("\nTest by yourself! Input some values (press 'q' to exit):")
+    prompts = ["Radius: ", "Std. dev. of gray-scale values: ", "Perimeter: ", "Area: ", "Smoothness: ", "Compactness: ", "Concavity: ", "Concave points: ", "Symmetry: "]
+    user_sample = []
+    pressed_q = False
+    while not pressed_q:
+        valid = False
+        user_sample = []
+        while not valid:
+            try:
+                for i in range(len(prompts)):
+                    user_input = input(prompts[i])
+                    if user_input == 'q' or user_input == 'Q':
+                        print("\nUser requested to exit.\n")
+                        pressed_q = True
+                        exit()
+                    user_value = float(user_input)
+                    user_sample.append(user_value)
+                valid = True
+            except Exception as e:
+                print("\nUse numerical values only!\n")
+                user_sample = []
+                valid = False
+
+        x_sample = np.reshape(np.array(normalized(user_sample, minmax_dict)), (9, 1))
+
+        result = make_prediction(x_sample, w1, b1, w2, b2)
+        print("Diagnosis:", result)
