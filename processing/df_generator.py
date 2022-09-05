@@ -1,5 +1,6 @@
 
 import pandas as pd
+import numpy as np
 
 class DataframeGenerator:
     def __init__(self, csv_file: str, header: bool=None, encoding: str="utf_8", na_values: str | int | float='?'):
@@ -13,6 +14,8 @@ class DataframeGenerator:
         """
         # Generate dataframe from csv file
         self.df = pd.read_csv(csv_file, header=header, encoding=encoding, na_values=na_values)
+        # Shuffle data
+        self.df = self.df.iloc[np.random.permutation(len(self.df))]
         # Clean possible na values
         for column in self.df.columns:
             mean = self.df[column].mean()

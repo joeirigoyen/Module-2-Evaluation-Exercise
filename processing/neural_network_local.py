@@ -1,6 +1,7 @@
 from df_generator import DataframeGenerator
 import numpy as np
 
+
 # Activation functions
 def relu(z):
     """
@@ -287,17 +288,35 @@ def normalized(values, minmax_dict):
 
 # Run functions
 if __name__ == '__main__':
-    # Import dataframe
-    print("\nImporting and processing data...")
-    df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
-    df, minmax_dict = process_df(df_gen.train)
-    # Split dataframe into separate arrays
-    x = df.drop('diagnosis', axis=1).to_numpy().T
-    y = df['diagnosis'].to_numpy()
-    # Get weights by running the model
-    print("\nTraining neural network (using 10000 epochs and a learning rate of 0.001)...")
+    # Set number of times to process training data
+    NUM_OF_TRAININGS = 1
     first_layer_neurons, second_layer_neurons = 8, 2
-    w1, b1, w2, b2 = gradient_descent(x, y, 0.001, 10000, first_layer_neurons, second_layer_neurons)
+    g_w1, g_b1, g_w2, g_b2 = np.zeros((first_layer_neurons, 9)), np.zeros((first_layer_neurons, 1)), np.zeros((second_layer_neurons, first_layer_neurons)), np.zeros((second_layer_neurons, 1))
+
+    # Start trainings
+    for n in range(NUM_OF_TRAININGS):
+        # Import dataframe
+        print("\nImporting and processing data...")
+        df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
+        df, minmax_dict = process_df(df_gen.train)
+        # Split dataframe into separate arrays
+        x = df.drop('diagnosis', axis=1).to_numpy().T
+        y = df['diagnosis'].to_numpy()
+        # Get weights by running the model
+        print("\nTraining neural network (using 5 epochs and a learning rate of 10)...")
+        w1, b1, w2, b2 = gradient_descent(x, y, 0.001, 10000, first_layer_neurons, second_layer_neurons)
+        # Add to total weights
+        g_w1 += w1
+        g_b1 += b1
+        g_w2 += w2
+        g_b2 += b2
+
+    # Get mean of weights for final predictions
+    w1 = g_w1 / NUM_OF_TRAININGS
+    b1 = g_b1 / NUM_OF_TRAININGS
+    w2 = g_w2 / NUM_OF_TRAININGS
+    b2 = g_b2 / NUM_OF_TRAININGS
+
     # Get accuracy 
     print("\nTesting model accuracy...")
     test_df = process_df(df_gen.test, minmax=False)
@@ -306,7 +325,7 @@ if __name__ == '__main__':
     for i in range(0, len(test_y), 5):
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
 
-    # Get sample from user
+"""     # Get sample from user
     print("\nTest by yourself! Input some values (press 'q' to exit):")
     prompts = ["Radius: ", "Std. dev. of gray-scale values: ", "Perimeter: ", "Area: ", "Smoothness: ", "Compactness: ", "Concavity: ", "Concave points: ", "Symmetry: "]
     user_sample = []
@@ -329,8 +348,6 @@ if __name__ == '__main__':
                 print("\nUse numerical values only!\n")
                 user_sample = []
                 valid = False
-
         x_sample = np.reshape(np.array(normalized(user_sample, minmax_dict)), (9, 1))
-
         result = make_prediction(x_sample, w1, b1, w2, b2)
-        print("Diagnosis:", result)
+        print("Diagnosis:", result) """
