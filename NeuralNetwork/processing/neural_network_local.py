@@ -297,7 +297,7 @@ if __name__ == '__main__':
     for n in range(NUM_OF_TRAININGS):
         # Import dataframe
         print("\nImporting and processing data...")
-        df_gen = DataframeGenerator("data\\breast-cancer-wisconsin.data")
+        df_gen = DataframeGenerator("NeuralNetwork\\data\\breast-cancer-wisconsin.data")
         df, minmax_dict = process_df(df_gen.train)
         # Split dataframe into separate arrays
         x = df.drop('diagnosis', axis=1).to_numpy().T
