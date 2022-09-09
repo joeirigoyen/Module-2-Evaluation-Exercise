@@ -1,5 +1,7 @@
-import pandas as pd
+import os
+import sys
 import numpy as np
+import pandas as pd
 
 class DataframeGenerator:
     def __init__(self, csv_file: str, header: bool=None, encoding: str="utf_8", na_values: str | int | float='?'):
@@ -24,5 +26,5 @@ class DataframeGenerator:
         self.train = self.df.sample(frac=0.8, random_state=25)
         self.test = self.df.drop(self.train.index)
         # Generate csv files with training and testing data
-        self.train.to_csv("NeuralNetwork\\data\\train.csv", index=False)
-        self.test.to_csv("NeuralNetwork\\data\\test.csv", index=False)
+        self.train.to_csv(os.path.join(sys.path[0], "train.csv"), index=False)
+        self.test.to_csv(os.path.join(sys.path[0], "test.csv"), index=False)

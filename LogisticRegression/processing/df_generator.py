@@ -24,5 +24,5 @@ class DataframeGenerator:
         self.train = self.df.sample(frac=0.8, random_state=25)
         self.test = self.df.drop(self.train.index)
         # Generate csv files with training and testing data
-        self.train.to_csv("LogisticRegression\\data\\train.csv", index=False)
-        self.test.to_csv("LogisticRegression\\data\\test.csv", index=False)
+        self.train.to_csv("train.csv", index=False)
+        self.test.to_csv("test.csv", index=False)

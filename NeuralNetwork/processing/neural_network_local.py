@@ -1,5 +1,7 @@
-from df_generator import DataframeGenerator
+import os
+import sys
 import numpy as np
+from df_generator import DataframeGenerator
 
 
 # Activation functions
@@ -297,7 +299,7 @@ if __name__ == '__main__':
     for n in range(NUM_OF_TRAININGS):
         # Import dataframe
         print("\nImporting and processing data...")
-        df_gen = DataframeGenerator("NeuralNetwork\\data\\breast-cancer-wisconsin.data")
+        df_gen = DataframeGenerator(os.path.join(sys.path[0], "breast-cancer-wisconsin.data"))
         df, minmax_dict = process_df(df_gen.train)
         # Split dataframe into separate arrays
         x = df.drop('diagnosis', axis=1).to_numpy().T
@@ -322,7 +324,8 @@ if __name__ == '__main__':
     test_df = process_df(df_gen.test, minmax=False)
     test_x = test_df.drop('diagnosis', axis=1).to_numpy().T
     test_y = test_df['diagnosis'].to_numpy()
-    for i in range(0, len(test_y), 5):
+    for _ in range(0, len(test_y), 10):
+        i = np.random.randint(0, len(test_y))
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
 
     # Get sample from user
