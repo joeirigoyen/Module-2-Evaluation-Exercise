@@ -1,3 +1,5 @@
+import os
+import sys
 import pandas as pd
 import numpy as np
 
@@ -24,5 +26,5 @@ class DataframeGenerator:
         self.train = self.df.sample(frac=0.8, random_state=25)
         self.test = self.df.drop(self.train.index)
         # Generate csv files with training and testing data
-        self.train.to_csv("train.csv", index=False)
-        self.test.to_csv("test.csv", index=False)
+        self.train.to_csv(os.path.join(os.path.split(sys.path[0])[0], "data" "train.csv"), index=False)
+        self.test.to_csv(os.path.join(os.path.split(sys.path[0])[0], "data", "test.csv"), index=False)
