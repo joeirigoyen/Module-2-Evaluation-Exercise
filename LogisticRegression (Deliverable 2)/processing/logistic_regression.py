@@ -37,14 +37,21 @@ solver_penalties = {
     'lbfgs' : ['l2', 'none'],
     'liblinear' : ['l1', 'l2'],
     'sag' : ['l2', 'none'],
-    'saga' : ['elasticnet', 'none']
+    'saga' : ['l2', 'none']
 }
 
-solver = 'newton-cg'
-penalty = solver_penalties[solver][0]
-results = run_model(x, y, x_test, penalty, solver, -1, 100)
-print(results.shape)
-print(y_test.shape)
+fig, axes = plt.subplots(1, 2)
+axes = axes.ravel()
 
-""" fig = plt.subplots(1, 2)
-plt.show() """
+x_plot = np.arange(100, 600, 100)
+y_plot = np.zeros((x_plot.shape[0]))
+solver = 'saga'
+
+for i in range(len(solver_penalties[solver])):
+    penalty = solver_penalties[solver][i]
+    results = run_model(x, y, x_test, penalty, solver, -1, 100)
+    equal_data = pd.DataFrame(np.array(results == y_test)).value_counts()
+    pie_data = equal_data.apply(lambda val : val * 100 / results.shape[0])
+    axes[i].pie(pie_data, labels=['True', 'False'], colors=sns.color_palette("hls", 8), autopct='%.2f%%')
+    axes[i].set_title(f"{solver} solver with {penalty} penalty accuracy by iterations")
+plt.show()
