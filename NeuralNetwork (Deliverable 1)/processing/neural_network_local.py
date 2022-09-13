@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+import seaborn as sb
 import matplotlib.pyplot as plt
 from df_generator import DataframeGenerator
 
@@ -290,17 +291,18 @@ def normalized(values, minmax_dict):
     return new_values
 
 
-def plot_results(x_data, y_data, preds):
-    fig, axes = plt.subplots(2, 5, figsize=(15, 10))
-    eq_array = np.array(y_data == preds)
-    row, col = 0, 0
-    for i in range(x_data.shape[1]):
-        if col % 5 == 0 and col != 0:
-            col = 0
-            row += 1
-        axes[row, col].scatter(np.arange(len(y_data)), x_data[:, i], color='orange')
-        axes[row, col].plot(np.arange(len(y_data)), eq_array, color='blue')
-        col += 1
+def plot_results(y_data, preds):
+    # Join predictions and outcome
+    equal_data = pd.DataFrame(np.array(y_data == preds))
+    # Take sum of each category
+    result_df = equal_data.value_counts().apply(lambda x : x * 100 / preds.shape[0])
+    print(preds.shape[0])
+    print(result_df)
+    # Plot info
+    fig = plt.figure(figsize=(10, 10))
+    colors = sb.color_palette('pastel')[0:len(result_df)]
+    plt.pie(result_df, labels=['True', 'False'], colors=colors, autopct='%.0f%%')
+    plt.title('Accurate vs Wrong Predictions Pie Chart')
     plt.show()
 
 # Run functions
@@ -342,9 +344,9 @@ if __name__ == '__main__':
     for _ in range(0, len(test_y), 10):
         i = np.random.randint(0, len(test_y))
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
-    plot_results(test_x.T, test_y, make_prediction(test_x, w1, b1, w2, b2))
+    plot_results(test_y, make_prediction(test_x, w1, b1, w2, b2))
 
-    # Get sample from user
+    """ # Get sample from user
     print("\nTest by yourself! Input some values (press 'q' to exit):")
     prompts = ["Radius: ", "Std. dev. of gray-scale values: ", "Perimeter: ", "Area: ", "Smoothness: ", "Compactness: ", "Concavity: ", "Concave points: ", "Symmetry: "]
     user_sample = []
@@ -369,4 +371,4 @@ if __name__ == '__main__':
                 valid = False
         x_sample = np.reshape(np.array(normalized(user_sample, minmax_dict)), (9, 1))
         result = make_prediction(x_sample, w1, b1, w2, b2)
-        print("Diagnosis:", result)
+        print("Diagnosis:", result)"""
