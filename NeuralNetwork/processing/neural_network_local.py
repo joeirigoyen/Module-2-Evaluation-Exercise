@@ -1,6 +1,8 @@
 import os
 import sys
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from df_generator import DataframeGenerator
 
 
@@ -288,6 +290,19 @@ def normalized(values, minmax_dict):
     return new_values
 
 
+def plot_results(x_data, y_data, preds):
+    fig, axes = plt.subplots(2, 5, figsize=(15, 10))
+    eq_array = np.array(y_data == preds)
+    row, col = 0, 0
+    for i in range(x_data.shape[1]):
+        if col % 5 == 0 and col != 0:
+            col = 0
+            row += 1
+        axes[row, col].scatter(np.arange(len(y_data)), x_data[:, i], color='orange')
+        axes[row, col].plot(np.arange(len(y_data)), eq_array, color='blue')
+        col += 1
+    plt.show()
+
 # Run functions
 if __name__ == '__main__':
     # Set number of times to process training data
@@ -296,7 +311,7 @@ if __name__ == '__main__':
     g_w1, g_b1, g_w2, g_b2 = np.zeros((first_layer_neurons, 9)), np.zeros((first_layer_neurons, 1)), np.zeros((second_layer_neurons, first_layer_neurons)), np.zeros((second_layer_neurons, 1))
 
     # Start trainings
-    for n in range(NUM_OF_TRAININGS):
+    for _ in range(NUM_OF_TRAININGS):
         # Import dataframe
         print("\nImporting and processing data...")
         df_gen = DataframeGenerator(os.path.join(sys.path[0], "breast-cancer-wisconsin.data"))
@@ -327,6 +342,7 @@ if __name__ == '__main__':
     for _ in range(0, len(test_y), 10):
         i = np.random.randint(0, len(test_y))
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
+    plot_results(test_x.T, test_y, make_prediction(test_x, w1, b1, w2, b2))
 
     # Get sample from user
     print("\nTest by yourself! Input some values (press 'q' to exit):")
