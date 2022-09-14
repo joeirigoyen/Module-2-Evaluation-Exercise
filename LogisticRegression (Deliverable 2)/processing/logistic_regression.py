@@ -40,12 +40,12 @@ solver_penalties = {
     'saga' : ['l2', 'none']
 }
 
-fig, axes = plt.subplots(1, 2)
+""" fig, axes = plt.subplots(1, 2)
 axes = axes.ravel()
 
 x_plot = np.arange(100, 600, 100)
 y_plot = np.zeros((x_plot.shape[0]))
-solver = 'saga'
+solver = 'liblinear'
 
 for i in range(len(solver_penalties[solver])):
     penalty = solver_penalties[solver][i]
@@ -54,4 +54,15 @@ for i in range(len(solver_penalties[solver])):
     pie_data = equal_data.apply(lambda val : val * 100 / results.shape[0])
     axes[i].pie(pie_data, labels=['True', 'False'], colors=sns.color_palette("hls", 8), autopct='%.2f%%')
     axes[i].set_title(f"{solver} solver with {penalty} penalty accuracy by iterations")
+plt.show() """
+
+results = run_model(x, y, x_test, 'l1', 'liblinear', -1, 1000)
+variance = np.var(results)
+sse = np.mean((np.mean(results) - y_test) ** 2)
+bias = sse - variance
+
+fig = plt.figure(figsize=(10, 10))
+plt.scatter(np.arange(len(y_test)), y_test, color='orange')
+plt.scatter(np.arange(len(y_test)), results, marker='x', color='black')
+plt.legend(['Real Values', 'Predictions'])
 plt.show()
