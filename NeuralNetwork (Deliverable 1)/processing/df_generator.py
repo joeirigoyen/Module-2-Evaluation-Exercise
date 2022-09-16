@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 class DataframeGenerator:
-    def __init__(self, csv_file: str, header: bool=None, encoding: str="utf_8", na_values: str | int | float='?'):
+    def __init__(self, csv_file, header, encoding, na_values='?'):
         """Initializes a dataframe with certain fixes applied before returning it to the user.
 
         Args:

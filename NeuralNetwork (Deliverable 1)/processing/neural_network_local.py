@@ -346,7 +346,7 @@ if __name__ == '__main__':
         show_predictions(test_x, test_y, w1, b1, w2, b2, i)
     plot_results(test_y, make_prediction(test_x, w1, b1, w2, b2))
 
-    """ # Get sample from user
+    # Get sample from user
     print("\nTest by yourself! Input some values (press 'q' to exit):")
     prompts = ["Radius: ", "Std. dev. of gray-scale values: ", "Perimeter: ", "Area: ", "Smoothness: ", "Compactness: ", "Concavity: ", "Concave points: ", "Symmetry: "]
     user_sample = []
@@ -371,4 +371,4 @@ if __name__ == '__main__':
                 valid = False
         x_sample = np.reshape(np.array(normalized(user_sample, minmax_dict)), (9, 1))
         result = make_prediction(x_sample, w1, b1, w2, b2)
-        print("Diagnosis:", result)"""
+        print("Diagnosis:", result)
